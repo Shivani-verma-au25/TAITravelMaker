@@ -55,7 +55,7 @@ const loginUser = useGoogleLogin({
 // get user profile
 
 const getUSerProfile = (tokenInfo) =>{
-  axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${tokenInfo?.access_token}`,{
+  axios.get(`${import.meta.env.VITE_GOOGLE_API_FOR_GET_USER} ${tokenInfo?.access_token}`,{
     headers : {
       Authorization :`Bearer ${tokenInfo?.access_token}`,
       Accept : 'Appliction/json'
