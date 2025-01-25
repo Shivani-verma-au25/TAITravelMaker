@@ -3,6 +3,7 @@ import Hero from './pages/Hero'
 
 
 
+
 function App() {
   return (
     <div className=''>
@@ -11,6 +12,7 @@ function App() {
 
       {/* hero section */}
       <Hero />
+
     </div>
   )
 }

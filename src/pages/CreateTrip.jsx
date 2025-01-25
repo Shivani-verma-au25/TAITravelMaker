@@ -1,14 +1,29 @@
+import { chatSession } from '@/aiServices/AiModel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { SelectBudgetOption, SelectTravelList } from '@/constanst/options';
+import { AI_PROMPT, SelectBudgetOption, SelectTravelList } from '@/constanst/options';
 import React, { useEffect, useState } from 'react'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
-import toast, { Toaster } from 'react-hot-toast';
+import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  
+} from "@/components/ui/dialog"
+import { FcGoogle } from "react-icons/fc";
+import { useGoogleLogin } from '@react-oauth/google';
+
+
+
+
 
 
 function CreateTrip() {
   const   [place , setPlace] = useState('')
   const [formData ,setFormData] = useState([])
+  const [openDialogue , setOpenDialogue] = useState(false)
 
   const handleInputChange = (name,value) =>{
    
@@ -24,13 +39,45 @@ function CreateTrip() {
     
   },[formData])
 
+// login 
+const loginUser = useGoogleLogin({
+  onSuccess :(codeRes) => console.log(codeRes),
+  onError : (error) => console.log(error)
+  })
 
-  const OnGenerateTrip = () =>{
+
+
+// trip maker
+  const OnGenerateTrip = async() =>{
+
+    const user = localStorage.getItem('user')
+    if (user) {
+      setOpenDialogue(true)
+    }
+
     if (formData?.noOfDays > 10) {
-        toast.error("Please make a trip for 10 days or under 10 days!")
+      toast('You can make a trip for 10 days or under the 10 days.')
       return
     }
-  console.log("Places" , formData);
+
+  if (!formData?.location || !formData?.budget || !formData?.people) {
+      toast('Please fill all details')
+      return
+
+  }    
+
+  const finalPrompt = AI_PROMPT.
+  replace('{location}',formData?.location?.label)
+  .replace('{TotalDays}',formData?.noOfDays)
+  .replace('{People}',formData?.people)
+  .replace('{budget}',formData?.budget)
+
+  console.log("fomdata" , formData);
+  console.log("prompt" , finalPrompt);
+
+  const result = await chatSession.sendMessage(finalPrompt)
+  console.log("result : -",result?.response.text());
+  
 
   }
 
@@ -39,7 +86,6 @@ function CreateTrip() {
   
   return (
     <div className='sm:px-10 md:px-32 lg:px56 xl:px-10 px-5 mt-10 '>
-      <Toaster/>
       <h2 className='font-bold text-3xl'>Tell us your Travel preferences 🏕️🌲</h2>
       <p className='mt-3 text-gray-500 text-xl'>Just provide some basic information , and our trip planner will generate a customized  itinerary based on your preferences.</p>
     
@@ -104,6 +150,23 @@ function CreateTrip() {
     <div className='my-10 justify-end flex'>
         <Button onClick={OnGenerateTrip}>Generate Trip</Button>
     </div>
+
+
+    <Dialog open={openDialogue}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogDescription>
+            <img src="/google.svg" alt="" srcset="" />
+            <h2 className='font-bold text-lg'>Sign in with Google</h2>
+            <p>Sign in to a app with Google authentication secure</p>
+            <Button  className='w-full mt-5 flex gap-2 items-center justify-center'
+            onClick={loginUser}
+             ><FcGoogle className=''/> Sign in with Google</Button>
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+
 
     </div>
   )
