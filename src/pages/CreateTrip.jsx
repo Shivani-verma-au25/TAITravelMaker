@@ -14,6 +14,11 @@ import {
 } from "@/components/ui/dialog"
 import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
+import { doc, setDoc } from "firebase/firestore"; 
+import { LiaTruckLoadingSolid } from "react-icons/lia";
+import { db } from '@/aiServices/fireBseConfig';
+
 
 
 
@@ -24,6 +29,7 @@ function CreateTrip() {
   const   [place , setPlace] = useState('')
   const [formData ,setFormData] = useState([])
   const [openDialogue , setOpenDialogue] = useState(false)
+  const [loading ,setLoading] = useState(false)
 
   const handleInputChange = (name,value) =>{
    
@@ -41,9 +47,26 @@ function CreateTrip() {
 
 // login 
 const loginUser = useGoogleLogin({
-  onSuccess :(codeRes) => console.log(codeRes),
+  onSuccess :(res) => getUSerProfile(res),
   onError : (error) => console.log(error)
   })
+
+
+// get user profile
+
+const getUSerProfile = (tokenInfo) =>{
+  axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${tokenInfo?.access_token}`,{
+    headers : {
+      Authorization :`Bearer ${tokenInfo?.access_token}`,
+      Accept : 'Appliction/json'
+    }
+  }).then((resp) =>{
+    console.log(resp);
+  localStorage.setItem('user',JSON.stringify(resp.data))
+  setOpenDialogue(false)
+  OnGenerateTrip()  
+  })
+}
 
 
 
@@ -51,8 +74,9 @@ const loginUser = useGoogleLogin({
   const OnGenerateTrip = async() =>{
 
     const user = localStorage.getItem('user')
-    if (user) {
+    if (!user) {
       setOpenDialogue(true)
+      return ;
     }
 
     if (formData?.noOfDays > 10) {
@@ -65,6 +89,7 @@ const loginUser = useGoogleLogin({
       return
 
   }    
+  setLoading(true)
 
   const finalPrompt = AI_PROMPT.
   replace('{location}',formData?.location?.label)
@@ -76,11 +101,27 @@ const loginUser = useGoogleLogin({
   console.log("prompt" , finalPrompt);
 
   const result = await chatSession.sendMessage(finalPrompt)
-  console.log("result : -",result?.response.text());
-  
+  // console.log("result : -",result?.response.text());
+  setLoading(false)
+  saveAiTrip(result?.response.text())  
 
   }
 
+
+// save into database
+const saveAiTrip = async (tripData) => {
+  setLoading(true)
+  const user = JSON.parse(localStorage.getItem('user'))
+  const docID = Date.now().toString()
+
+    await setDoc(doc(db, "AITrips", docID), {
+      userSelection : formData,
+      tripData : JSON.parse(tripData),
+      userEmail : user.email,
+      id : docID
+    });
+    setLoading(false)
+}
 
 
   
@@ -148,7 +189,7 @@ const loginUser = useGoogleLogin({
       </div>
 
     <div className='my-10 justify-end flex'>
-        <Button onClick={OnGenerateTrip}>Generate Trip</Button>
+        <Button onClick={OnGenerateTrip} disabled={loading }> {loading ? <LiaTruckLoadingSolid className='h-7 w-7 animate-spin' /> : 'Generate Trip '}</Button>
     </div>
 
 
@@ -156,12 +197,12 @@ const loginUser = useGoogleLogin({
       <DialogContent>
         <DialogHeader>
           <DialogDescription>
-            <img src="/google.svg" alt="" srcset="" />
+            <img src="/google.svg" alt="" />
             <h2 className='font-bold text-lg'>Sign in with Google</h2>
             <p>Sign in to a app with Google authentication secure</p>
-            <Button  className='w-full mt-5 flex gap-2 items-center justify-center'
-            onClick={loginUser}
-             ><FcGoogle className=''/> Sign in with Google</Button>
+            <Button className='w-full mt-5 flex gap-2 items-center justify-center'
+              onClick={loginUser}> <FcGoogle className=''/> Sign in with Google
+            </Button> 
           </DialogDescription>
         </DialogHeader>
       </DialogContent>
