@@ -18,10 +18,7 @@ import axios from 'axios';
 import { doc, setDoc } from "firebase/firestore"; 
 import { LiaTruckLoadingSolid } from "react-icons/lia";
 import { db } from '@/aiServices/fireBseConfig';
-
-
-
-
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -30,7 +27,7 @@ function CreateTrip() {
   const [formData ,setFormData] = useState([])
   const [openDialogue , setOpenDialogue] = useState(false)
   const [loading ,setLoading] = useState(false)
-
+  const navigate = useNavigate()
   const handleInputChange = (name,value) =>{
    
     setFormData({
@@ -121,6 +118,7 @@ const saveAiTrip = async (tripData) => {
       id : docID
     });
     setLoading(false)
+    navigate(`/view-trip/${docID}`)
 }
 
 
@@ -151,7 +149,7 @@ const saveAiTrip = async (tripData) => {
         {/*  */}
         <div className='mt-20'>
           <h2 className='text-xl my-3 font-medium'>How many days are you planning for trip?</h2>
-          <Input type='number' placeholder={'Ex.3'}
+          <Input type='number' placeholder={'Ex.3 Day'}
           onChange={(e)=> handleInputChange('noOfDays' , e.target.value)}
            />
         </div>
