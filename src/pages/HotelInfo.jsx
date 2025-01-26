@@ -7,7 +7,7 @@ function HotelInfo({trip}) {
       <h2 className='font-bold text-xl mt-4'>Recommendation Hotels</h2>
       <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 overflow-hidden ' >
         {trip?.tripData?.hotel_options?.map((hotel,index) => (
-          <Link to={`https://www.google.com/maps/search/?api=1&query=${hotel?.hotel_name + hotel?.hotel_address}`} target='_blank'>
+          <Link to={`${import.meta.env.VITE_GOOGLE_MAP_LOCATION_SEARCH_API}?api=1&query=${hotel?.hotel_name + hotel?.hotel_address}`} target='_blank'>
             <div key={index} className='hover:scale-110 transition-all cursor-pointer ' >
               <img className='rounded-xl' src="https://t4.ftcdn.net/jpg/00/65/48/25/360_F_65482539_C0ZozE5gUjCafz7Xq98WB4dW6LAhqKfs.jpg" alt="" />
               <div className='my-3 flex gap-1 flex-col'>
