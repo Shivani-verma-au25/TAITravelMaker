@@ -59,6 +59,7 @@ const getUSerProfile = (tokenInfo) =>{
     }
   }).then((resp) =>{
     console.log(resp);
+  toast("Generation plans for you...")
   localStorage.setItem('user',JSON.stringify(resp.data))
   setOpenDialogue(false)
   OnGenerateTrip()  
@@ -118,6 +119,8 @@ const saveAiTrip = async (tripData) => {
       id : docID
     });
     setLoading(false)
+
+    toast('Trip plan genetated')
     navigate(`/view-trip/${docID}`)
 }
 
@@ -187,7 +190,7 @@ const saveAiTrip = async (tripData) => {
       </div>
 
     <div className='my-10 justify-end flex'>
-        <Button onClick={OnGenerateTrip} disabled={loading }> {loading ? <LiaTruckLoadingSolid className='h-7 w-7 animate-spin' /> : 'Generate Trip '}</Button>
+        <Button onClick={OnGenerateTrip} disabled={loading }> {loading ? 'Generating trip !Please wait for a while... ' : 'Generate Trip '}</Button>
     </div>
 
 

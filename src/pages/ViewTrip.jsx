@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import InfoSection from './InfoSection'
 import HotelInfo from './HotelInfo'
+import DailyPlacesVisited from './DailyPlacesVisited'
 
 function ViewTrip() {
     const {tripId} = useParams()
@@ -38,6 +39,7 @@ function ViewTrip() {
         {/* {recommended hotels} */}
         <HotelInfo trip={trip} />
         {/* itinerary  daily plan */}
+        <DailyPlacesVisited trip={trip} />
         {/* footer */}
     </div>
   )
