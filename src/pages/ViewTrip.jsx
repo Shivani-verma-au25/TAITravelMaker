@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import InfoSection from './InfoSection'
 import HotelInfo from './HotelInfo'
 import DailyPlacesVisited from './DailyPlacesVisited'
+import Footer from './Footer'
 
 function ViewTrip() {
     const {tripId} = useParams()
@@ -41,6 +42,7 @@ function ViewTrip() {
         {/* itinerary  daily plan */}
         <DailyPlacesVisited trip={trip} />
         {/* footer */}
+        <Footer/>
     </div>
   )
 }
